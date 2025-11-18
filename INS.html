@@ -1,0 +1,609 @@
+<!doctype doctype>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Signature Authentication</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 0;
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .step {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            border-color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .step h3 {
+            margin: 0 0 0.5rem 0;
+            color: #2d3748;
+            font-size: 1.3rem;
+        }
+
+        .step p {
+            margin: 0;
+            color: #718096;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .demo-section {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .demo-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin: 0 0 1.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 0.95rem;
+        }
+
+        .input-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.875rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .button-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            box-shadow: none;
+        }
+
+        .button-secondary:hover {
+            background: #f7fafc;
+        }
+
+        .key-display {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border: 2px solid #e9ecef;
+        }
+
+        .key-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .key-value {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #2d3748;
+            word-break: break-all;
+            line-height: 1.6;
+            background: white;
+            padding: 0.75rem;
+            border-radius: 6px;
+        }
+
+        .status-message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+            display: flex;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+            display: flex;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .info-box {
+            background: #e6f3ff;
+            border: 2px solid #90caf9;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .info-box h4 {
+            margin: 0 0 0.75rem 0;
+            color: #1565c0;
+            font-size: 1.1rem;
+        }
+
+        .info-box ul {
+            margin: 0;
+            padding-left: 1.5rem;
+            color: #1976d2;
+            line-height: 1.8;
+        }
+
+        .signature-display {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border: 2px solid #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.75rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .steps {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .button {
+                width: 100%;
+            }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <div class="header">
+    <h1 id="main-title">Digital Signature Authentication</h1>
+    <p id="subtitle">Secure Message Verification System</p>
+    <div class="security-badge">
+     🔒 RSA-2048 Encryption
+    </div>
+   </div>
+   <div class="content">
+    <div class="steps">
+     <div class="step">
+      <div class="step-number">
+       1
+      </div>
+      <h3 id="step1-title">Generate Keys</h3>
+      <p>Create a unique pair of public and private keys using RSA cryptography. The private key signs messages, while the public key verifies them.</p>
+     </div>
+     <div class="step">
+      <div class="step-number">
+       2
+      </div>
+      <h3 id="step2-title">Sign Message</h3>
+      <p>Use your private key to create a digital signature for your message. This signature proves you are the authentic sender.</p>
+     </div>
+     <div class="step">
+      <div class="step-number">
+       3
+      </div>
+      <h3 id="step3-title">Verify Signature</h3>
+      <p>Anyone can use your public key to verify the signature, confirming the message came from you and hasn't been altered.</p>
+     </div>
+    </div>
+    <div class="demo-section">
+     <div class="demo-title">
+      🔑 Step 1: Generate Key Pair
+     </div>
+     <p style="color: #718096; margin-bottom: 1.5rem;">Generate your RSA public and private keys. Keep the private key secure!</p><button class="button" id="generateKeysBtn">Generate RSA Keys</button>
+     <div id="keysDisplay" style="display: none;">
+      <div class="key-display"><span class="key-label">Public Key (Share this)</span>
+       <div class="key-value" id="publicKeyDisplay"></div>
+      </div>
+      <div class="key-display"><span class="key-label">Private Key (Keep secret!)</span>
+       <div class="key-value" id="privateKeyDisplay"></div>
+      </div>
+     </div>
+    </div>
+    <div class="demo-section">
+     <div class="demo-title">
+      ✍️ Step 2: Sign Your Message
+     </div>
+     <div class="input-group"><label for="messageInput">Your Message</label> <textarea id="messageInput" rows="4" placeholder="Enter the message you want to sign...">Hello! This is a secure message that I'm signing with my private key.</textarea>
+     </div><button class="button" id="signMessageBtn" disabled>Sign Message</button>
+     <div id="signatureDisplay" style="display: none;">
+      <div class="signature-display"><span class="key-label">Digital Signature</span>
+       <div class="key-value" id="signatureValue"></div>
+      </div>
+     </div>
+     <div id="signStatus" class="status-message"></div>
+    </div>
+    <div class="demo-section">
+     <div class="demo-title">
+      ✅ Step 3: Verify Signature
+     </div>
+     <p style="color: #718096; margin-bottom: 1.5rem;">Verify that the message was signed by the private key holder.</p>
+     <div class="input-group"><label for="verifyMessageInput">Message to Verify</label> <textarea id="verifyMessageInput" rows="4" placeholder="Enter the message to verify..."></textarea>
+     </div>
+     <div class="input-group"><label for="verifySignatureInput">Signature</label> <textarea id="verifySignatureInput" rows="3" placeholder="Paste the signature here..."></textarea>
+     </div>
+     <div class="button-group"><button class="button" id="verifyBtn" disabled>Verify Signature</button> <button class="button button-secondary" id="tamperBtn" disabled>Test Tampering</button>
+     </div>
+     <div id="verifyStatus" class="status-message"></div>
+    </div>
+    <div class="info-box">
+     <h4>🛡️ How This Keeps Your Messages Safe:</h4>
+     <ul>
+      <li><strong>Authentication:</strong> Proves the sender's identity</li>
+      <li><strong>Integrity:</strong> Detects any message tampering</li>
+      <li><strong>Non-repudiation:</strong> Sender cannot deny sending the message</li>
+      <li><strong>RSA-2048:</strong> Industry-standard encryption strength</li>
+     </ul>
+    </div>
+   </div>
+  </div>
+  <script>
+        let publicKey = null;
+        let privateKey = null;
+        let currentSignature = null;
+
+        const defaultConfig = {
+            main_title: "Digital Signature Authentication",
+            subtitle: "Secure Message Verification System",
+            step1_title: "Generate Keys",
+            step2_title: "Sign Message",
+            step3_title: "Verify Signature"
+        };
+
+        async function onConfigChange(config) {
+            document.getElementById('main-title').textContent = config.main_title || defaultConfig.main_title;
+            document.getElementById('subtitle').textContent = config.subtitle || defaultConfig.subtitle;
+            document.getElementById('step1-title').textContent = config.step1_title || defaultConfig.step1_title;
+            document.getElementById('step2-title').textContent = config.step2_title || defaultConfig.step2_title;
+            document.getElementById('step3-title').textContent = config.step3_title || defaultConfig.step3_title;
+        }
+
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig: defaultConfig,
+                onConfigChange: onConfigChange,
+                mapToCapabilities: (config) => ({
+                    recolorables: [],
+                    borderables: [],
+                    fontEditable: undefined,
+                    fontSizeable: undefined
+                }),
+                mapToEditPanelValues: (config) => new Map([
+                    ["main_title", config.main_title || defaultConfig.main_title],
+                    ["subtitle", config.subtitle || defaultConfig.subtitle],
+                    ["step1_title", config.step1_title || defaultConfig.step1_title],
+                    ["step2_title", config.step2_title || defaultConfig.step2_title],
+                    ["step3_title", config.step3_title || defaultConfig.step3_title]
+                ])
+            });
+        }
+
+        async function generateKeys() {
+            const generateKeysBtn = document.getElementById('generateKeysBtn');
+            generateKeysBtn.disabled = true;
+            generateKeysBtn.textContent = 'Generating Keys...';
+
+            try {
+                const keyPair = await window.crypto.subtle.generateKey(
+                    {
+                        name: "RSA-PSS",
+                        modulusLength: 2048,
+                        publicExponent: new Uint8Array([1, 0, 1]),
+                        hash: "SHA-256"
+                    },
+                    true,
+                    ["sign", "verify"]
+                );
+
+                publicKey = keyPair.publicKey;
+                privateKey = keyPair.privateKey;
+
+                const exportedPublicKey = await window.crypto.subtle.exportKey("spki", publicKey);
+                const exportedPrivateKey = await window.crypto.subtle.exportKey("pkcs8", privateKey);
+
+                const publicKeyBase64 = arrayBufferToBase64(exportedPublicKey);
+                const privateKeyBase64 = arrayBufferToBase64(exportedPrivateKey);
+
+                document.getElementById('publicKeyDisplay').textContent = publicKeyBase64;
+                document.getElementById('privateKeyDisplay').textContent = privateKeyBase64;
+                document.getElementById('keysDisplay').style.display = 'block';
+
+                document.getElementById('signMessageBtn').disabled = false;
+                document.getElementById('verifyBtn').disabled = false;
+
+                generateKeysBtn.textContent = 'Generate New Keys';
+                generateKeysBtn.disabled = false;
+
+            } catch (error) {
+                generateKeysBtn.textContent = 'Generate RSA Keys';
+                generateKeysBtn.disabled = false;
+                showStatus('signStatus', 'Error generating keys. Please try again.', false);
+            }
+        }
+
+        async function signMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+
+            if (!message) {
+                showStatus('signStatus', 'Please enter a message to sign.', false);
+                return;
+            }
+
+            const signMessageBtn = document.getElementById('signMessageBtn');
+            signMessageBtn.disabled = true;
+            signMessageBtn.textContent = 'Signing...';
+
+            try {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(message);
+
+                const signature = await window.crypto.subtle.sign(
+                    {
+                        name: "RSA-PSS",
+                        saltLength: 32
+                    },
+                    privateKey,
+                    data
+                );
+
+                currentSignature = arrayBufferToBase64(signature);
+                document.getElementById('signatureValue').textContent = currentSignature;
+                document.getElementById('signatureDisplay').style.display = 'block';
+
+                document.getElementById('verifyMessageInput').value = message;
+                document.getElementById('verifySignatureInput').value = currentSignature;
+                document.getElementById('tamperBtn').disabled = false;
+
+                showStatus('signStatus', '✓ Message signed successfully! The signature is unique to this message.', true);
+
+                signMessageBtn.textContent = 'Sign Message';
+                signMessageBtn.disabled = false;
+
+            } catch (error) {
+                signMessageBtn.textContent = 'Sign Message';
+                signMessageBtn.disabled = false;
+                showStatus('signStatus', 'Error signing message. Please try again.', false);
+            }
+        }
+
+        async function verifySignature() {
+            const message = document.getElementById('verifyMessageInput').value.trim();
+            const signatureBase64 = document.getElementById('verifySignatureInput').value.trim();
+
+            if (!message || !signatureBase64) {
+                showStatus('verifyStatus', 'Please enter both message and signature.', false);
+                return;
+            }
+
+            const verifyBtn = document.getElementById('verifyBtn');
+            verifyBtn.disabled = true;
+            verifyBtn.textContent = 'Verifying...';
+
+            try {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(message);
+                const signature = base64ToArrayBuffer(signatureBase64);
+
+                const isValid = await window.crypto.subtle.verify(
+                    {
+                        name: "RSA-PSS",
+                        saltLength: 32
+                    },
+                    publicKey,
+                    signature,
+                    data
+                );
+
+                if (isValid) {
+                    showStatus('verifyStatus', '✓ Signature is VALID! The message is authentic and hasn\'t been tampered with.', true);
+                } else {
+                    showStatus('verifyStatus', '✗ Signature is INVALID! The message may have been altered or signed with a different key.', false);
+                }
+
+                verifyBtn.textContent = 'Verify Signature';
+                verifyBtn.disabled = false;
+
+            } catch (error) {
+                verifyBtn.textContent = 'Verify Signature';
+                verifyBtn.disabled = false;
+                showStatus('verifyStatus', '✗ Verification failed. Please check your inputs.', false);
+            }
+        }
+
+        function testTampering() {
+            const verifyMessageInput = document.getElementById('verifyMessageInput');
+            const originalMessage = verifyMessageInput.value;
+            verifyMessageInput.value = originalMessage + " [TAMPERED]";
+            showStatus('verifyStatus', 'Message has been tampered with. Try verifying now to see what happens!', false);
+        }
+
+        function arrayBufferToBase64(buffer) {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+
+        function base64ToArrayBuffer(base64) {
+            const binaryString = atob(base64);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function showStatus(elementId, message, isSuccess) {
+            const statusElement = document.getElementById(elementId);
+            statusElement.textContent = message;
+            statusElement.className = 'status-message ' + (isSuccess ? 'success' : 'error');
+        }
+
+        document.getElementById('generateKeysBtn').addEventListener('click', generateKeys);
+        document.getElementById('signMessageBtn').addEventListener('click', signMessage);
+        document.getElementById('verifyBtn').addEventListener('click', verifySignature);
+        document.getElementById('tamperBtn').addEventListener('click', testTampering);
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a04ff81e16a3d2e',t:'MTc2MzQ0MzAxMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
